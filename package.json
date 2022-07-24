@@ -13,7 +13,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "eslint src/** --max-warnings 0"
   },
   "dependencies": {
     "react": "^18.2.0",
