@@ -12,7 +12,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -26,6 +27,7 @@
     "@vitejs/plugin-react": "^2.0.0",
     "eslint": "^8.20.0",
     "eslint-plugin-react": "^7.30.1",
+    "husky": "^8.0.1",
     "prettier": "^2.7.1",
     "typescript": "^4.6.4",
     "vite": "^3.0.0",
