@@ -1,13 +1,16 @@
-import useExercises from "./hooks/useExercises"
+import { Route, Routes } from "react-router-dom"
+import Toaster from "./components/toaster"
+import Exercises from "./pages/exercises"
 
 function App() {
-  const { exercises, createExercise } = useExercises()
-
   return (
-    <div>
-      <pre>{JSON.stringify(exercises, null, 2)}</pre>
-      <button onClick={createExercise}>click</button>
-    </div>
+    <>
+      <Routes>
+        <Route path="/" element={<Exercises />} />
+        <Route path="/exercises" element={<Exercises />} />
+      </Routes>
+      <Toaster />
+    </>
   )
 }
 
