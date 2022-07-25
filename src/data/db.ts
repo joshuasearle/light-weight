@@ -2,8 +2,9 @@ import Dexie, { Table } from "dexie"
 
 interface Exercise {
   id: string
+  orderNumber: number
   name: string
-  notes?: string
+  notes: string
 }
 
 interface Set {
@@ -22,10 +23,11 @@ class LightWeightDatabase extends Dexie {
   constructor() {
     super("LightWeightDatabase")
     this.version(1).stores({
-      exercises: "&id",
+      exercises: "&id,&name,&orderNumber",
       sets: "&id,exerciseId,performedAt",
     })
   }
 }
 
 export const db = new LightWeightDatabase()
+export type { Exercise, Set }
