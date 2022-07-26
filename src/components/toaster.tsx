@@ -6,11 +6,7 @@ const Toaster = () => {
       position="bottom-center"
       toastOptions={{
         className:
-          "rounded-md shadow-sm border border-zinc-300 text-zinc-700 font-semibold",
-        style: {
-          // Removes default shadow of toast, and sets it to `shadow-sm`
-          boxShadow: " 0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        },
+          "rounded-md shadow-sm shadow-shadow border font-semibold bg-background border-border text-default",
         success: {
           duration: 2000,
         },

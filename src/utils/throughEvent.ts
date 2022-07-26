@@ -1,7 +1,9 @@
 import { ChangeEvent, Dispatch, SetStateAction } from "react"
 
-const throughEvent = (f: Dispatch<SetStateAction<string>>) => {
-  return (e: ChangeEvent<HTMLInputElement>) => {
+type Setter = Dispatch<SetStateAction<string>> | ((_: string) => void)
+
+const throughEvent = (f: Setter) => {
+  return (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     f(e.target.value)
   }
 }

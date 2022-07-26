@@ -19,7 +19,8 @@
   "plugins": ["react", "@typescript-eslint"],
   "rules": {
     "quotes": ["error", "double"],
-    "semi": ["error", "never"]
+    "semi": ["error", "never"],
+    "react/display-name": "off"
   },
   "globals": { "React": "readonly" },
   "settings": {
