@@ -1,8 +1,18 @@
+import { ChevronRightIcon, SelectorIcon } from "@heroicons/react/solid"
 import { useLiveQuery } from "dexie-react-hooks"
-import { useCallback, useState, useMemo } from "react"
+import { useCallback, useState, useRef, useEffect, memo } from "react"
 import toast from "react-hot-toast"
+import { Link } from "react-router-dom"
+import Button from "../components/button"
+import TextInput from "../components/text-input"
+import TextareaInput from "../components/textarea-input"
 import { db, Exercise } from "../data/db"
-import throughEvent from "../utils/throughEvent"
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from "react-beautiful-dnd"
 
 const useExercises = () => {
   return useLiveQuery(() =>
@@ -16,15 +26,8 @@ const useExercises = () => {
   )
 }
 
-const useAddExercise = () => {
-  const [addingExercise, setAddingExercise] = useState(false)
-
-  const toggleAddingExercise = useCallback(
-    () => setAddingExercise((b) => !b),
-    []
-  )
-
-  const addExercise = useCallback(
+const useAddExercise = (onSuccess?: () => void) => {
+  return useCallback(
     async ({ name, notes }: { name: string; notes: string }) => {
       try {
         if (name.trim().length === 0) {
@@ -53,164 +56,302 @@ const useAddExercise = () => {
           orderNumber: firstOrderNumber - 1,
         })
         toast.success("Exercise created")
-        setAddingExercise(false)
+        // TODO: Testing needed here
+        if (onSuccess) setTimeout(onSuccess, 50)
       } catch (e) {
         toast.error("Failed to add exercise")
       }
     },
-    []
-  )
-
-  return useMemo(
-    () => ({ addExercise, addingExercise, toggleAddingExercise }),
-    [addExercise, addingExercise, toggleAddingExercise]
+    [onSuccess]
   )
 }
 
-const useEditExercise = () => {
-  const [exerciseId, setExerciseId] = useState<string | null>(null)
-
-  const setExercise = useCallback((exercise: Exercise) => {
-    setExerciseId(exercise.id)
-  }, [])
-
-  const stopEditting = useCallback(() => setExerciseId(null), [])
-
-  const updateExercise = useCallback(
-    ({ name, notes }: { name: string; notes: string }) => {
-      if (!exerciseId) {
-        toast.error("Exercise needs a name")
+const useMoveExercise = (exercises: Exercise[]) => {
+  return useCallback(
+    async (result: DropResult) => {
+      if (!result.destination) {
         return
       }
 
-      db.exercises
-        .update(exerciseId, { name, notes })
-        .then((updatedCount) => {
-          if (updatedCount === 0) throw new Error("Failed to update exercise")
-          else toast.success("Exercise updated")
-        })
-        .catch(() => {
-          toast.error("Failed to update exercise")
-        })
-        .finally(() => {
-          setExerciseId(null)
-        })
+      if (result.destination.index === result.source.index) {
+        return
+      }
+
+      const newExercises = [...exercises]
+      const [removed] = newExercises.splice(result.source.index, 1)
+      newExercises.splice(result.destination.index, 0, removed)
+
+      const promises = newExercises.map((exercise, i) => {
+        return db.exercises.update(exercise.id, { orderNumber: i })
+      })
+
+      await Promise.all(promises)
     },
-    [exerciseId]
-  )
-
-  return useMemo(
-    () => ({
-      exerciseId,
-      updateExercise,
-      setExercise,
-      stopEditting,
-    }),
-    [exerciseId, updateExercise, setExercise, stopEditting]
+    [exercises]
   )
 }
 
-const useDeleteExercise = () => {
-  return useCallback((exerciseId: string) => {
-    db.exercises
-      .where("id")
-      .equals(exerciseId)
-      .delete()
-      .then((deletedCount) => {
-        if (deletedCount === 0) throw new Error("Failed to delete exercise")
-        else toast.success("Exercise deleted")
-      })
-      .catch(() => {
-        toast.error("Failed to delete exercise")
-      })
-  }, [])
-}
+// const useEditExercise = () => {
+//   const [exerciseId, setExerciseId] = useState<string | null>(null)
 
-const AddExerciseForm = () => {
-  const { addingExercise, addExercise, toggleAddingExercise } = useAddExercise()
+//   const setExercise = useCallback((exercise: Exercise) => {
+//     setExerciseId(exercise.id)
+//   }, [])
+
+//   const stopEditting = useCallback(() => setExerciseId(null), [])
+
+//   const updateExercise = useCallback(
+//     ({ name, notes }: { name: string; notes: string }) => {
+//       if (!exerciseId) {
+//         toast.error("Exercise needs a name")
+//         return
+//       }
+
+//       db.exercises
+//         .update(exerciseId, { name, notes })
+//         .then((updatedCount) => {
+//           if (updatedCount === 0) throw new Error("Failed to update exercise")
+//           else toast.success("Exercise updated")
+//         })
+//         .catch(() => {
+//           toast.error("Failed to update exercise")
+//         })
+//         .finally(() => {
+//           setExerciseId(null)
+//         })
+//     },
+//     [exerciseId]
+//   )
+
+//   return useMemo(
+//     () => ({
+//       exerciseId,
+//       updateExercise,
+//       setExercise,
+//       stopEditting,
+//     }),
+//     [exerciseId, updateExercise, setExercise, stopEditting]
+//   )
+// }
+
+// const useDeleteExercise = () => {
+//   return useCallback((exerciseId: string) => {
+//     db.exercises
+//       .where("id")
+//       .equals(exerciseId)
+//       .delete()
+//       .then((deletedCount) => {
+//         if (deletedCount === 0) throw new Error("Failed to delete exercise")
+//         else toast.success("Exercise deleted")
+//       })
+//       .catch(() => {
+//         toast.error("Failed to delete exercise")
+//       })
+//   }, [])
+// }
+
+const AddExerciseForm = memo(({ closeForm }: { closeForm: () => void }) => {
+  const addExercise = useAddExercise(closeForm)
 
   return (
-    <>
-      {addingExercise ? (
-        <ExerciseForm
-          {...{
-            submitMessage: "Add exercise",
-            onSubmit: addExercise,
-            onCancel: toggleAddingExercise,
-          }}
+    <ExerciseForm
+      {...{
+        submitMessage: "Add exercise",
+        onSubmit: addExercise,
+        closeForm,
+      }}
+    />
+  )
+})
+
+const ExerciseForm = memo(
+  ({
+    submitMessage,
+    onSubmit,
+    closeForm,
+    initialName,
+    initialNotes,
+  }: {
+    submitMessage: string
+    onSubmit: ({ name, notes }: { name: string; notes: string }) => void
+    closeForm: () => void
+    initialName?: string
+    initialNotes?: string
+  }) => {
+    const [name, setName] = useState(initialName || "")
+    const [notes, setNotes] = useState(initialNotes || "")
+
+    const nameInput = useRef<HTMLInputElement | null>(null)
+
+    useEffect(() => {
+      if (nameInput.current) nameInput.current.focus()
+    }, [])
+
+    return (
+      <div className="border border-border shadow shadow-shadow rounded-md p-4 flex flex-col space-y-4">
+        <TextInput
+          ref={nameInput}
+          value={name}
+          changeHandler={setName}
+          label="Exercise name"
+          htmlFor="exerciseName"
         />
-      ) : (
-        <button onClick={toggleAddingExercise}>Add exercise</button>
-      )}
-    </>
-  )
-}
+        <TextareaInput
+          value={notes}
+          changeHandler={setNotes}
+          label="Exercise notes"
+          htmlFor="exerciseNotes"
+        />
+        <div className="flex flex-row space-x-4">
+          <Button onClick={() => onSubmit({ name, notes })}>
+            {submitMessage}
+          </Button>
+          <Button onClick={closeForm}>Cancel</Button>
+        </div>
+      </div>
+    )
+  }
+)
 
-const ExerciseForm = ({
-  submitMessage,
-  onSubmit,
-  onCancel,
-}: {
-  submitMessage: string
-  onSubmit: ({ name, notes }: { name: string; notes: string }) => void
-  onCancel: () => void
-}) => {
-  const [name, setName] = useState("")
-  const [notes, setNotes] = useState("")
-
-  return (
-    <div>
-      <input value={name} onChange={throughEvent(setName)} />
-      <input value={notes} onChange={throughEvent(setNotes)} />
-      <button onClick={() => onSubmit({ name, notes })}>{submitMessage}</button>
-      <button onClick={onCancel}>Cancel</button>
-    </div>
-  )
-}
-
-const ExerciseList = ({ exercises }: { exercises: Exercise[] }) => {
-  const { exerciseId, setExercise, stopEditting, updateExercise } =
-    useEditExercise()
-  const deleteExercise = useDeleteExercise()
-
+const ExerciseList = memo(({ exercises }: { exercises: Exercise[] }) => {
   return (
     <>
-      {exercises.map((exercise) =>
-        exercise.id === exerciseId ? (
-          <ExerciseForm
-            {...{
-              submitMessage: "Update exercise",
-              onSubmit: updateExercise,
-              onCancel: stopEditting,
-            }}
-          />
-        ) : (
-          <div key={exercise.id}>
-            <pre>{JSON.stringify(exercise, null, 2)}</pre>
-            <button onClick={() => deleteExercise(exercise.id)}>Delete</button>
-            <button
-              onClick={() => {
-                setExercise(exercise)
-              }}
-            >
-              Edit
-            </button>
-          </div>
-        )
-      )}
+      {exercises.map((exercise) => (
+        <ExerciseCard key={exercise.id} exercise={exercise} />
+      ))}
     </>
   )
+})
+
+const ExerciseCard = memo(
+  ({
+    exercise,
+    reorderModeOn = false,
+  }: {
+    exercise: Exercise
+    reorderModeOn?: boolean
+  }) => {
+    const className =
+      "bg-background w-full border border-border shadow shadow-shadow rounded-md px-3.5 py-2 flex flex-row justify-between items-center outline-none group"
+
+    if (reorderModeOn) {
+      return (
+        <div className={className}>
+          <span className="font-semibold">{exercise.name}</span>
+          <SelectorIcon className="h-6 w-6" />
+        </div>
+      )
+    }
+
+    return (
+      <Link to={`/exercises/${exercise.id}`} className={className}>
+        <span className="font-semibold">{exercise.name}</span>
+        <ChevronRightIcon className="h-6 w-6 group-focus-visible:ring-2 group-focus-visible:ring-cyan-900 rounded-md" />
+      </Link>
+    )
+  }
+)
+
+const ReorderableExerciseList = memo(
+  ({ exercises }: { exercises: Exercise[] }) => {
+    const moveExercise = useMoveExercise(exercises)
+
+    const [exercisesCopy, setExercisesCopy] = useState([...exercises])
+
+    useEffect(() => {
+      setExercisesCopy([...exercises])
+    }, [exercises])
+
+    return (
+      <DragDropContext
+        onDragEnd={(result) => {
+          if (!result.destination) return
+          moveExercise(result)
+          const newExercises = [...exercises]
+          const [removed] = newExercises.splice(result.source.index, 1)
+          newExercises.splice(result.destination.index, 0, removed)
+          setExercisesCopy(newExercises)
+        }}
+      >
+        <Droppable droppableId="droppable">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {exercisesCopy.map((exercise, i) => (
+                <Draggable
+                  key={exercise.id}
+                  draggableId={exercise.id}
+                  index={i}
+                >
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="py-2"
+                    >
+                      <ExerciseCard exercise={exercise} reorderModeOn={true} />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+    )
+  }
+)
+
+enum PageState {
+  NORMAL,
+  ADDING_EXERCISE,
+  REORDERING,
 }
 
-const Exercises = () => {
+const Exercises = memo(() => {
   const exercises = useExercises()
+  const [pageState, setPageState] = useState<PageState>(PageState.NORMAL)
+
+  const exercisesExist = !!exercises && exercises.length !== 0
 
   return (
-    <div>
-      <AddExerciseForm />
-      {!!exercises && <ExerciseList exercises={exercises} />}
+    <div
+      className={
+        pageState === PageState.REORDERING ? "space-y-2 -mb-2" : "space-y-4"
+      }
+    >
+      {pageState !== PageState.ADDING_EXERCISE && (
+        <div className="flex flex-row justify-between w-full">
+          <Button onClick={() => setPageState(PageState.ADDING_EXERCISE)}>
+            Add exercise
+          </Button>
+          {exercisesExist && (
+            <Button
+              onClick={() =>
+                setPageState(
+                  pageState === PageState.REORDERING
+                    ? PageState.NORMAL
+                    : PageState.REORDERING
+                )
+              }
+            >
+              Reorder
+            </Button>
+          )}
+        </div>
+      )}
+      {pageState === PageState.ADDING_EXERCISE && (
+        <AddExerciseForm closeForm={() => setPageState(PageState.NORMAL)} />
+      )}
+      {exercisesExist && pageState !== PageState.REORDERING && (
+        <ExerciseList exercises={exercises} />
+      )}
+      {exercisesExist && pageState === PageState.REORDERING && (
+        <ReorderableExerciseList exercises={exercises} />
+      )}
     </div>
   )
-}
+})
 
 export default Exercises
