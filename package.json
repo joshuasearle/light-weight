@@ -17,6 +17,7 @@
     "lint": "eslint src/** --max-warnings 0"
   },
   "dependencies": {
+    "@heroicons/react": "^1.0.6",
     "@tailwindcss/forms": "^0.5.2",
     "dexie": "^3.2.2",
     "dexie-react-hooks": "^1.1.1",
