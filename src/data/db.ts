@@ -23,7 +23,7 @@ class LightWeightDatabase extends Dexie {
   constructor() {
     super("LightWeightDatabase")
     this.version(1).stores({
-      exercises: "&id,&name,&orderNumber",
+      exercises: "&id,&name,orderNumber",
       sets: "&id,exerciseId,performedAt",
     })
   }
