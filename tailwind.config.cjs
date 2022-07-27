@@ -9,7 +9,7 @@ module.exports = {
     extend: {
       colors: {
         background: colors.zinc["900"],
-        default: colors.zinc["100"],
+        default: colors.zinc["300"],
         border: colors.zinc["600"],
         shadow: "#141417",
         accent: colors.cyan["900"],
