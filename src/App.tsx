@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom"
+import { Link, Route, Routes } from "react-router-dom"
 import Toaster from "./components/toaster"
 import Exercises from "./pages/exercises"
 import { MenuIcon, UserIcon } from "@heroicons/react/solid"
@@ -15,7 +15,14 @@ function App() {
       </div>
       <div className="sm:mt-6 max-w-xl mx-auto border-border sm:shadow-sm shadow-shadow sm:border sm:rounded-md p-4">
         <Routes>
-          <Route path="/" element={<Exercises />} />
+          <Route
+            path="/"
+            element={
+              <div>
+                <Link to="/exercises">Exercises</Link>
+              </div>
+            }
+          />
           <Route path="/exercises" element={<Exercises />} />
         </Routes>
       </div>
