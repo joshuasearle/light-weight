@@ -11,7 +11,7 @@ module.exports = {
         background: colors.zinc["900"],
         default: colors.zinc["100"],
         border: colors.zinc["600"],
-        shadow: "#101012",
+        shadow: "#141417",
         accent: colors.cyan["900"],
       },
     },
