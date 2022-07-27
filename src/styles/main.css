@@ -25,3 +25,7 @@ body,
 ::-webkit-scrollbar-thumb {
   @apply bg-zinc-700;
 }
+
+:root {
+  -webkit-tap-highlight-color: transparent;
+}
