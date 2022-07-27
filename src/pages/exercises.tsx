@@ -57,7 +57,7 @@ const useAddExercise = (onSuccess?: () => void) => {
         })
         toast.success("Exercise created")
         // TODO: Testing needed here
-        if (onSuccess) setTimeout(onSuccess, 50)
+        if (onSuccess) setTimeout(onSuccess, 150)
       } catch (e) {
         toast.error("Failed to add exercise")
       }
@@ -150,19 +150,36 @@ const useMoveExercise = (exercises: Exercise[]) => {
 //   }, [])
 // }
 
-const AddExerciseForm = memo(({ closeForm }: { closeForm: () => void }) => {
-  const addExercise = useAddExercise(closeForm)
+const AddExerciseForm = memo(
+  ({
+    closeForm,
+    exercises,
+  }: {
+    closeForm: () => void
+    exercises: Exercise[] | undefined
+  }) => {
+    const addExercise = useAddExercise()
+    const firstArrayRenderDone = useRef(false)
 
-  return (
-    <ExerciseForm
-      {...{
-        submitMessage: "Add exercise",
-        onSubmit: addExercise,
-        closeForm,
-      }}
-    />
-  )
-})
+    useEffect(() => {
+      if (!firstArrayRenderDone.current) {
+        if (Array.isArray(exercises)) firstArrayRenderDone.current = true
+      } else {
+        closeForm()
+      }
+    }, [exercises])
+
+    return (
+      <ExerciseForm
+        {...{
+          submitMessage: "Add exercise",
+          onSubmit: addExercise,
+          closeForm,
+        }}
+      />
+    )
+  }
+)
 
 const ExerciseForm = memo(
   ({
@@ -336,13 +353,16 @@ const Exercises = memo(() => {
                 )
               }
             >
-              Reorder
+              {pageState === PageState.REORDERING ? "Save" : "Reorder"}
             </Button>
           )}
         </div>
       )}
       {pageState === PageState.ADDING_EXERCISE && (
-        <AddExerciseForm closeForm={() => setPageState(PageState.NORMAL)} />
+        <AddExerciseForm
+          exercises={exercises}
+          closeForm={() => setPageState(PageState.NORMAL)}
+        />
       )}
       {exercisesExist && pageState !== PageState.REORDERING && (
         <ExerciseList exercises={exercises} />
