@@ -5,13 +5,19 @@ const Toaster = () => {
     <RHToaster
       position="bottom-center"
       toastOptions={{
-        className:
-          "rounded-md shadow-sm shadow-shadow border font-semibold bg-background border-border text-default",
         success: {
           duration: 2000,
         },
         error: {
           duration: 4000,
+        },
+        style: {
+          borderRadius: "0.375rem",
+          boxShadow: "0 1px 2px 0 #101012",
+          border: "1px solid #52525b",
+          backgroundColor: "#18181b",
+          color: "#f4f4f5",
+          fontWeight: 600,
         },
       }}
     />
