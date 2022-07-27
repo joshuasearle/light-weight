@@ -15,7 +15,7 @@
     "format": "prettier --write .",
     "prepare": "husky install",
     "lint": "eslint src/** --max-warnings 0",
-    "deploy": "gh-pages -d dist"
+    "deploy": "yarn build && gh-pages -d dist"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
