@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" />
+    <link rel="manifest" href="/light-weight/manifest.json" crossorigin="use-credentials" />
     <title>LightWeight</title>
     <script type="module" crossorigin src="/light-weight/assets/index.9e80a972.js"></script>
     <link rel="stylesheet" href="/light-weight/assets/index.00f114a7.css">
@@ -10,5 +12,15 @@
   <body>
     <div id="root"></div>
     
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./sw.js")
+            .then((reg) => null)
+            .catch((err) => console.log("Failure: ", err))
+        })
+      }
+    </script>
   </body>
 </html>
