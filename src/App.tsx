@@ -1,7 +1,8 @@
-import { Link, Route, Routes } from "react-router-dom"
+import { Navigate, Route, Routes } from "react-router-dom"
 import Toaster from "./components/toaster"
 import Exercises from "./pages/exercises"
 import { MenuIcon, UserIcon } from "@heroicons/react/solid"
+import ExercisePage from "./pages/exercise"
 
 function App() {
   return (
@@ -15,15 +16,9 @@ function App() {
       </div>
       <div className="sm:mt-6 max-w-xl mx-auto border-border sm:shadow-sm shadow-shadow sm:border sm:rounded-md p-4">
         <Routes>
-          <Route
-            path="/"
-            element={
-              <div>
-                <Link to="/exercises">Exercises</Link>
-              </div>
-            }
-          />
+          <Route path="/" element={<Navigate to="/exercises" />} />
           <Route path="/exercises" element={<Exercises />} />
+          <Route path="/exercises/:id" element={<ExercisePage />} />
         </Routes>
       </div>
       <Toaster />
