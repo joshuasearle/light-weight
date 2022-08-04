@@ -91,65 +91,6 @@ const useMoveExercise = (exercises: Exercise[]) => {
   )
 }
 
-// const useEditExercise = () => {
-//   const [exerciseId, setExerciseId] = useState<string | null>(null)
-
-//   const setExercise = useCallback((exercise: Exercise) => {
-//     setExerciseId(exercise.id)
-//   }, [])
-
-//   const stopEditting = useCallback(() => setExerciseId(null), [])
-
-//   const updateExercise = useCallback(
-//     ({ name, notes }: { name: string; notes: string }) => {
-//       if (!exerciseId) {
-//         toast.error("Exercise needs a name")
-//         return
-//       }
-
-//       db.exercises
-//         .update(exerciseId, { name, notes })
-//         .then((updatedCount) => {
-//           if (updatedCount === 0) throw new Error("Failed to update exercise")
-//           else toast.success("Exercise updated")
-//         })
-//         .catch(() => {
-//           toast.error("Failed to update exercise")
-//         })
-//         .finally(() => {
-//           setExerciseId(null)
-//         })
-//     },
-//     [exerciseId]
-//   )
-
-//   return useMemo(
-//     () => ({
-//       exerciseId,
-//       updateExercise,
-//       setExercise,
-//       stopEditting,
-//     }),
-//     [exerciseId, updateExercise, setExercise, stopEditting]
-//   )
-// }
-
-// const useDeleteExercise = () => {
-//   return useCallback((exerciseId: string) => {
-//     db.exercises
-//       .where("id")
-//       .equals(exerciseId)
-//       .delete()
-//       .then((deletedCount) => {
-//         if (deletedCount === 0) throw new Error("Failed to delete exercise")
-//         else toast.success("Exercise deleted")
-//       })
-//       .catch(() => {
-//         toast.error("Failed to delete exercise")
-//       })
-//   }, [])
-// }
-
 const AddExerciseForm = memo(
   ({
     closeForm,
