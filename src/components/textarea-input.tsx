@@ -20,7 +20,7 @@ const TextareaInput = ({
         id={htmlFor}
         value={value}
         onChange={throughEvent(changeHandler)}
-        className="bg-background border border-border rounded-md shadow-sm shadow-shadow px-3.5 py-2 text-lg focus-visible:outline-none outline-none focus-visible:ring-2 focus-visible:ring-cyan-900 focus-visible:border-transparent duration-[50ms]"
+        className="bg-background border border-border rounded-md shadow-sm shadow-shadow px-3.5 py-2 text-base focus-visible:outline-none outline-none focus-visible:ring-2 focus-visible:ring-cyan-900 focus-visible:border-transparent duration-[50ms]"
       ></textarea>
     </div>
   )
