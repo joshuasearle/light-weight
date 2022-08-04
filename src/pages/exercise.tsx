@@ -1,7 +1,8 @@
+import * as AlertDialog from "@radix-ui/react-alert-dialog"
 import { useLiveQuery } from "dexie-react-hooks"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import toast from "react-hot-toast"
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import Button from "../components/button"
 import TextInput from "../components/text-input"
 import TextareaInput from "../components/textarea-input"
@@ -64,6 +65,20 @@ const useUpdateExercise = (
   )
 }
 
+const useDeleteExercise = (onSuccess: () => void) => {
+  return useCallback((exerciseId: string) => {
+    db.exercises
+      .delete(exerciseId)
+      .then(() => {
+        toast.success("Exercise deleted")
+        onSuccess()
+      })
+      .catch(() => {
+        toast.error("Failed to delete exercise")
+      })
+  }, [])
+}
+
 const ExercisePage = () => {
   const [editing, setEditing] = useState(false)
 
@@ -74,6 +89,8 @@ const ExercisePage = () => {
     exercise,
     () => setEditing(false)
   )
+  const navigate = useNavigate()
+  const deleteExercise = useDeleteExercise(() => navigate("/exercises"))
 
   const firstEditingRenderDone = useRef(false)
 
@@ -122,7 +139,37 @@ const ExercisePage = () => {
         <div className="space-x-4">
           <Button onClick={() => null}>Log set</Button>
           <Button onClick={() => setEditing((b) => !b)}>Edit</Button>
-          <Button onClick={() => null}>Delete</Button>
+          <AlertDialog.Root>
+            <AlertDialog.Trigger asChild>
+              <Button onClick={() => null}>Delete</Button>
+            </AlertDialog.Trigger>
+            <AlertDialog.Content>
+              <div className="fixed h-full w-full top-0 left-0 bg-background opacity-60"></div>
+              <div className="absolute left-1/2 -translate-x-1/2 flex justify-center">
+                <div className="max-w-md w-5/6 space-y-4 p-4 border border-border rounded-md shadow-sm shadow-shadow bg-background">
+                  <AlertDialog.Title>
+                    <h2 className="font-semibold text-xl">Are you sure?</h2>
+                  </AlertDialog.Title>
+                  <AlertDialog.Description>
+                    Deleting an exercise will also delete all recorded sets for
+                    the exercise. Alternatively, you can change the name and
+                    notes of the exercise using the{" "}
+                    <span className="font-semibold">Edit</span> button.
+                  </AlertDialog.Description>
+                  <div className="space-x-4">
+                    <AlertDialog.Action asChild>
+                      <Button onClick={() => deleteExercise(exercise.id)}>
+                        Delete
+                      </Button>
+                    </AlertDialog.Action>
+                    <AlertDialog.Cancel asChild>
+                      <Button onClick={() => null}>Cancel</Button>
+                    </AlertDialog.Cancel>
+                  </div>
+                </div>
+              </div>
+            </AlertDialog.Content>
+          </AlertDialog.Root>
         </div>
       ) : (
         <div className="space-x-4">
