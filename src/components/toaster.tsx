@@ -14,7 +14,7 @@ const Toaster = () => {
         },
         style: {
           borderRadius: "0.375rem",
-          boxShadow: "0 1px 2px 0 #101012",
+          boxShadow: "0 1px 2px 0 #141417",
           border: "1px solid #52525b",
           backgroundColor: "#18181b",
           color: "#f4f4f5",
