@@ -14,6 +14,9 @@ module.exports = {
         shadow: "#141417",
         accent: colors.cyan["900"],
       },
+      screens: {
+        xs: "400px",
+      },
     },
   },
   plugins: [require("@tailwindcss/forms")],
