@@ -149,6 +149,47 @@ const useCreateSet = () => {
   )
 }
 
+const useUpdateSet = () => {
+  return useCallback(
+    (setId: string) =>
+      async ({
+        date,
+        weight,
+        reps,
+        rpe,
+      }: {
+        date: Date
+        weight: number
+        reps: number
+        rpe: number
+      }) => {
+        try {
+          await db.sets.update(setId, {
+            performedAt: date,
+            weight,
+            reps,
+            rpe,
+          })
+          toast.success("Set updated")
+        } catch (e) {
+          toast.error("Failed to update set")
+        }
+      },
+    []
+  )
+}
+
+const useDeleteSet = () => {
+  return useCallback(async (setId: string) => {
+    try {
+      await db.sets.delete(setId)
+      toast.success("Set deleted")
+    } catch (e) {
+      toast.error("Failed to delete set")
+    }
+  }, [])
+}
+
 const SetForm = memo(
   ({
     submitMessage,
@@ -258,6 +299,8 @@ const SetCard = memo(
     }).format(performedAt)
     const [modalOpen, setModalOpen] = useState(false)
 
+    const deleteSet = useDeleteSet()
+
     return (
       <div
         className={`relative sm:text-base text-sm flex flex-row justify-between border-x border-t border-border px-3.5 py-2 ${
@@ -294,7 +337,13 @@ const SetCard = memo(
                     </button>
                   </div>
                   <div className="border-x border-b border-border rounded-b">
-                    <button className="px-3.5 py-2 outline-none focus-visible:ring-2 ring-cyan-900 duration-[50ms] rounded-md">
+                    <button
+                      onClick={async () => {
+                        await deleteSet(id)
+                        setModalOpen(false)
+                      }}
+                      className="px-3.5 py-2 outline-none focus-visible:ring-2 ring-cyan-900 duration-[50ms] rounded-md"
+                    >
                       Delete
                     </button>
                   </div>
@@ -327,6 +376,8 @@ const SetGroup = memo(
       day: "numeric",
     }).format(performedAt)
 
+    const updateSet = useUpdateSet()
+
     return (
       <div>
         <span className="font-semibold">{dateString}</span>
@@ -336,7 +387,7 @@ const SetGroup = memo(
               <SetForm
                 key={set.id}
                 submitMessage="Update"
-                onSubmit={() => null}
+                onSubmit={updateSet(set.id)}
                 closeForm={() => selectSetToEdit(null)}
                 roundedTop={i === 0}
                 roundedBottom={i === setGroup.length - 1}
