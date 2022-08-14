@@ -4,9 +4,9 @@ import { memo, useCallback, useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { useNavigate, useParams } from "react-router-dom"
 import Button from "../components/button"
-import DateInput from "../components/date-input"
+import DateInput from "../components/datetime-input"
 import ExerciseForm from "../components/exercise-form"
-import TimeInput from "../components/time-input"
+import NumberInput from "../components/number-input"
 import { db, Exercise } from "../data/db"
 
 const useExercise = (id: string | undefined) => {
@@ -71,31 +71,73 @@ const useDeleteExercise = (onSuccess: () => void) => {
 }
 
 const SetForm = memo(
-  (x: {
+  ({
+    submitMessage,
+    onSubmit,
+    closeForm,
+  }: {
     submitMessage: string
-    onSubmit: ({ name, notes }: { name: string; notes: string }) => void
+    onSubmit: (_: {
+      date: Date
+      weight: number
+      reps: number
+      rpe: number
+    }) => void
     closeForm: () => void
   }) => {
-    console.log(x)
+    const [date, setDate] = useState(new Date())
+    const [weight, setWeight] = useState<number | null>(null)
+    const [reps, setReps] = useState<number | null>(null)
+    const [rpe, setRpe] = useState<number | null>(null)
 
     return (
       <div className="border border-border rounded-md shadow-shadow p-4">
-        <div className="flex flex-row justify-between space-x-4">
+        <div className="flex flex-col justify-between space-y-4">
           <div className="w-full">
             <DateInput
               label="Date"
               htmlFor="setDate"
-              value={""}
-              changeHandler={() => null}
+              value={date}
+              changeHandler={setDate}
             />
           </div>
-          <div className="w-full">
-            <TimeInput
-              label="Time"
-              htmlFor="setTime"
-              value={""}
-              changeHandler={() => null}
+          <div className="flex flex-row space-x-4">
+            <NumberInput
+              label="Weight"
+              htmlFor="setWeight"
+              value={weight}
+              changeHandler={setWeight}
+              fractionDigits={2}
             />
+            <NumberInput
+              label="Reps"
+              htmlFor="setReps"
+              value={reps}
+              changeHandler={setReps}
+              min={0}
+              fractionDigits={0}
+            />
+            <NumberInput
+              label="RPE"
+              htmlFor="setRpe"
+              value={rpe}
+              changeHandler={setRpe}
+              min={0}
+              max={10}
+              fractionDigits={0}
+            />
+          </div>
+          <div className="flex flex-row space-x-4">
+            <Button
+              onClick={() => {
+                if (date && weight && reps && rpe) {
+                  onSubmit({ date, weight, reps, rpe })
+                }
+              }}
+            >
+              {submitMessage}
+            </Button>
+            <Button onClick={closeForm}>Cancel</Button>
           </div>
         </div>
       </div>
