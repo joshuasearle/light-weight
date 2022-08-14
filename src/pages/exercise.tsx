@@ -1,4 +1,6 @@
+import { DotsHorizontalIcon } from "@heroicons/react/solid"
 import * as AlertDialog from "@radix-ui/react-alert-dialog"
+import * as Popover from "@radix-ui/react-popover"
 import { useLiveQuery } from "dexie-react-hooks"
 import { memo, useCallback, useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
@@ -7,7 +9,7 @@ import Button from "../components/button"
 import DateInput from "../components/datetime-input"
 import ExerciseForm from "../components/exercise-form"
 import NumberInput from "../components/number-input"
-import { db, Exercise } from "../data/db"
+import { db, Exercise, Set } from "../data/db"
 
 const useExercise = (id: string | undefined) => {
   return useLiveQuery(() => {
@@ -70,11 +72,93 @@ const useDeleteExercise = (onSuccess: () => void) => {
   }, [])
 }
 
+const useSets = (exerciseId: string | null) => {
+  return useLiveQuery(async () => {
+    if (!exerciseId) return undefined
+
+    const sets = await db.sets
+      .orderBy("performedAt")
+      .reverse()
+      .toArray()
+      .catch(() => {
+        toast.error("Could not fetch sets")
+        return undefined
+      })
+
+    if (!sets) return undefined
+
+    const setGroups: Set[][] = []
+
+    let currentSetGroup: Set[] = [sets[0]]
+
+    sets.forEach((current, i) => {
+      if (i === 0) return
+
+      const previous = currentSetGroup[currentSetGroup.length - 1]
+      const msDifference =
+        previous.performedAt.getTime() - current.performedAt.getTime()
+      const minDifference = msDifference / (1000 * 60)
+
+      const MAX_RESTTIME_THRESHOLD = 15
+
+      if (minDifference < MAX_RESTTIME_THRESHOLD) {
+        currentSetGroup.push(current)
+      } else {
+        setGroups.push([...currentSetGroup])
+        currentSetGroup = [current]
+      }
+    })
+
+    setGroups.push([...currentSetGroup])
+
+    return setGroups
+  }, [exerciseId])
+}
+
+const useCreateSet = () => {
+  return useCallback(
+    async ({
+      exerciseId,
+      performedAt,
+      weight,
+      reps,
+      rpe,
+    }: {
+      exerciseId: string
+      performedAt: Date
+      weight: number
+      reps: number
+      rpe: number
+    }) => {
+      try {
+        await db.sets.add({
+          id: crypto.randomUUID(),
+          exerciseId,
+          performedAt,
+          weight,
+          reps,
+          rpe,
+        })
+        toast.success("Set logged")
+      } catch (e) {
+        toast.error("Failed to log set")
+      }
+    },
+    []
+  )
+}
+
 const SetForm = memo(
   ({
     submitMessage,
     onSubmit,
     closeForm,
+    initialDate,
+    initialWeight,
+    initialReps,
+    initialRpe,
+    roundedTop = true,
+    roundedBottom = true,
   }: {
     submitMessage: string
     onSubmit: (_: {
@@ -84,14 +168,24 @@ const SetForm = memo(
       rpe: number
     }) => void
     closeForm: () => void
+    initialDate?: Date
+    initialWeight?: number
+    initialReps?: number
+    initialRpe?: number
+    roundedTop?: boolean
+    roundedBottom?: boolean
   }) => {
-    const [date, setDate] = useState(new Date())
-    const [weight, setWeight] = useState<number | null>(null)
-    const [reps, setReps] = useState<number | null>(null)
-    const [rpe, setRpe] = useState<number | null>(null)
+    const [date, setDate] = useState(initialDate || new Date())
+    const [weight, setWeight] = useState<number | null>(initialWeight || null)
+    const [reps, setReps] = useState<number | null>(initialReps || null)
+    const [rpe, setRpe] = useState<number | null>(initialRpe || null)
 
     return (
-      <div className="border border-border rounded-md shadow-shadow p-4">
+      <div
+        className={`border-x border-t border-border shadow-shadow p-4 ${
+          roundedTop && "rounded-t"
+        } ${roundedBottom && "rounded-b border-b"}`}
+      >
         <div className="flex flex-col justify-between space-y-4">
           <div className="w-full">
             <DateInput
@@ -145,6 +239,127 @@ const SetForm = memo(
   }
 )
 
+const SetCard = memo(
+  ({
+    set: { id, performedAt, weight, reps, rpe },
+    first,
+    last,
+    selectSetToEdit,
+  }: {
+    set: Set
+    first: boolean
+    last: boolean
+    selectSetToEdit: (_: string | null) => void
+  }) => {
+    const timeString = new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+    }).format(performedAt)
+    const [modalOpen, setModalOpen] = useState(false)
+
+    return (
+      <div
+        className={`relative sm:text-base text-sm flex flex-row justify-between border-x border-t border-border px-3.5 py-2 ${
+          first && last
+            ? "rounded border-b"
+            : first
+            ? "rounded-t-md"
+            : last
+            ? "rounded-b-md border-b"
+            : ""
+        }`}
+      >
+        <span className="w-1/4">{timeString}</span>
+        <span className="w-1/4">{weight}kg</span>
+        <span className="w-1/4">{reps} reps</span>
+        <span className="w-1/4">{rpe ? `RPE ${rpe}` : ""}</span>
+        <span className="absolute right-4">
+          <Popover.Root open={modalOpen} onOpenChange={setModalOpen}>
+            <Popover.Trigger asChild>
+              <DotsHorizontalIcon className="h-5 w-5 cursor-pointer" />
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content className="mt-1">
+                <div className="font-semibold bg-background flex flex-col items-start z-10 shadow-sm shadow-shadow rounded-md">
+                  <div className="border-border border rounded-t w-full">
+                    <button
+                      onClick={() => {
+                        selectSetToEdit(id)
+                        setModalOpen(false)
+                      }}
+                      className="px-3.5 py-2 w-full text-left outline-none focus-visible:ring-2 ring-cyan-900 rounded-md duration-[50ms]"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                  <div className="border-x border-b border-border rounded-b">
+                    <button className="px-3.5 py-2 outline-none focus-visible:ring-2 ring-cyan-900 duration-[50ms] rounded-md">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+        </span>
+      </div>
+    )
+  }
+)
+
+const SetGroup = memo(
+  ({
+    setGroup,
+    selectSetToEdit,
+    selectedSetId,
+  }: {
+    setGroup: Set[]
+    selectSetToEdit: (_: string | null) => void
+    selectedSetId: string | null
+  }) => {
+    if (setGroup.length === 0) return <></>
+
+    const { performedAt } = setGroup[0]
+    const dateString = new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      weekday: "short",
+      day: "numeric",
+    }).format(performedAt)
+
+    return (
+      <div>
+        <span className="font-semibold">{dateString}</span>
+        <div className="shadow-sm shadow-shadow rounded-md">
+          {setGroup.map((set, i) =>
+            set.id === selectedSetId ? (
+              <SetForm
+                key={set.id}
+                submitMessage="Update"
+                onSubmit={() => null}
+                closeForm={() => selectSetToEdit(null)}
+                roundedTop={i === 0}
+                roundedBottom={i === setGroup.length - 1}
+                initialDate={set.performedAt}
+                initialWeight={set.weight}
+                initialReps={set.reps}
+                initialRpe={set.rpe}
+              />
+            ) : (
+              <SetCard
+                key={set.id}
+                set={set}
+                first={i === 0}
+                last={i === setGroup.length - 1}
+                selectSetToEdit={selectSetToEdit}
+              />
+            )
+          )}
+        </div>
+      </div>
+    )
+  }
+)
+
 enum PageState {
   NORMAL,
   EDITING_EXERCISE,
@@ -164,21 +379,51 @@ const ExercisePage = () => {
   const navigate = useNavigate()
   const deleteExercise = useDeleteExercise(() => navigate("/exercises"))
 
-  const firstEditingRenderDone = useRef(false)
+  const firstExerciseEditingRenderDone = useRef(false)
 
   // Set page state to normal when live query updates
   useEffect(() => {
     if (pageState !== PageState.EDITING_EXERCISE) {
-      firstEditingRenderDone.current = false
+      firstExerciseEditingRenderDone.current = false
       return
     }
 
-    if (!firstEditingRenderDone.current) {
-      firstEditingRenderDone.current = true
+    if (!firstExerciseEditingRenderDone.current) {
+      firstExerciseEditingRenderDone.current = true
     } else {
       setPageState(PageState.NORMAL)
     }
   }, [pageState, exercise?.name, exercise?.notes])
+
+  const createSet = useCreateSet()
+  const setGroups = useSets(exercise ? exercise.id : null)
+
+  const firstSetEditingRenderDone = useRef(false)
+
+  useEffect(() => {
+    if (
+      pageState !== PageState.CREATING_SET &&
+      pageState !== PageState.EDITTING_SET
+    ) {
+      firstSetEditingRenderDone.current = false
+      return
+    }
+
+    if (!firstSetEditingRenderDone.current) {
+      firstSetEditingRenderDone.current = true
+    } else {
+      setPageState(PageState.NORMAL)
+    }
+  }, [pageState, setGroups])
+
+  const [setEditingId, setSetEditingId] = useState<string | null>(null)
+
+  console.log(setEditingId)
+
+  const selectSetToEdit = useCallback((setId: string | null) => {
+    setPageState(setId === null ? PageState.NORMAL : PageState.EDITTING_SET)
+    setSetEditingId(setId)
+  }, [])
 
   if (!exercise) return null
 
@@ -245,10 +490,30 @@ const ExercisePage = () => {
       {pageState === PageState.CREATING_SET && (
         <SetForm
           submitMessage="Log"
-          onSubmit={() => null}
+          onSubmit={({ date, weight, reps, rpe }) => {
+            if (!exercise) return
+            createSet({
+              exerciseId: exercise.id,
+              performedAt: date,
+              weight,
+              reps,
+              rpe,
+            })
+          }}
           closeForm={() => setPageState(PageState.NORMAL)}
         />
       )}
+      {Array.isArray(setGroups) &&
+        setGroups.map((setGroup, i) => (
+          <SetGroup
+            selectSetToEdit={selectSetToEdit}
+            key={i}
+            setGroup={setGroup}
+            selectedSetId={
+              pageState === PageState.EDITTING_SET ? setEditingId : null
+            }
+          />
+        ))}
     </div>
   )
 }
