@@ -86,8 +86,6 @@ const useSets = (exerciseId: string | null) => {
         return undefined
       })
 
-    console.log(sets)
-
     if (!sets || sets.length === 0) return undefined
 
     const setGroups: Set[][] = []
@@ -420,8 +418,6 @@ const ExercisePage = () => {
   }, [pageState, setGroups])
 
   const [setEditingId, setSetEditingId] = useState<string | null>(null)
-
-  console.log(setEditingId)
 
   const selectSetToEdit = useCallback((setId: string | null) => {
     setPageState(setId === null ? PageState.NORMAL : PageState.EDITTING_SET)
