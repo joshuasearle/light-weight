@@ -1,7 +1,11 @@
-import { memo } from "react"
+import { memo, useCallback } from "react"
 import throughEvent from "../utils/through-event"
 
-const TimeInput = ({
+const dateToString = (date: Date) => {
+  return date.toISOString().split(".")[0]
+}
+
+const DateInput = ({
   label,
   htmlFor,
   value,
@@ -9,23 +13,30 @@ const TimeInput = ({
 }: {
   label: string
   htmlFor: string
-  value: string
-  changeHandler: (_: string) => void
+  value: Date
+  changeHandler: (_: Date) => void
 }) => {
+  const handleDateChange = useCallback(
+    (value: string) => {
+      changeHandler(new Date(value))
+    },
+    [changeHandler]
+  )
+
   return (
     <div className="flex flex-col">
       <label htmlFor={htmlFor} className="font-semibold">
         {label}
       </label>
       <input
-        type="time"
+        type="datetime-local"
         id={htmlFor}
-        value={value}
-        onChange={throughEvent(changeHandler)}
+        value={dateToString(value)}
+        onChange={throughEvent(handleDateChange)}
         className="w-full text-default bg-background border border-border rounded-md shadow-sm shadow-shadow px-3.5 py-2 text-xs xs:text-base sm:text-lg outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-900 focus-visible:border-transparent duration-[50ms]"
       />
     </div>
   )
 }
 
-export default memo(TimeInput)
+export default memo(DateInput)
