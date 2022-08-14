@@ -1,4 +1,5 @@
-import throughEvent from "../utils/throughEvent"
+import { memo } from "react"
+import throughEvent from "../utils/through-event"
 
 const TextareaInput = ({
   label,
@@ -26,4 +27,4 @@ const TextareaInput = ({
   )
 }
 
-export default TextareaInput
+export default memo(TextareaInput)

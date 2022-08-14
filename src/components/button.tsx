@@ -1,4 +1,4 @@
-import { ReactNode } from "react"
+import { memo, ReactNode } from "react"
 
 const Button = ({
   children,
@@ -17,4 +17,4 @@ const Button = ({
   )
 }
 
-export default Button
+export default memo(Button)

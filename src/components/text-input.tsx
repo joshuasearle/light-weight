@@ -1,5 +1,5 @@
-import { forwardRef, Ref } from "react"
-import throughEvent from "../utils/throughEvent"
+import { forwardRef, memo, Ref } from "react"
+import throughEvent from "../utils/through-event"
 
 const TextInput = (
   {
@@ -31,4 +31,4 @@ const TextInput = (
   )
 }
 
-export default forwardRef(TextInput)
+export default memo(forwardRef(TextInput))

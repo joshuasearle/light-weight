@@ -1,3 +1,4 @@
+import { memo } from "react"
 import { Toaster as RHToaster } from "react-hot-toast"
 
 const Toaster = () => {
@@ -24,4 +25,4 @@ const Toaster = () => {
   )
 }
 
-export default Toaster
+export default memo(Toaster)
