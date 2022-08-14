@@ -77,15 +77,18 @@ const useSets = (exerciseId: string | null) => {
     if (!exerciseId) return undefined
 
     const sets = await db.sets
-      .orderBy("performedAt")
+      .where("exerciseId")
+      .equals(exerciseId)
       .reverse()
-      .toArray()
+      .sortBy("performedAt")
       .catch(() => {
         toast.error("Could not fetch sets")
         return undefined
       })
 
-    if (!sets) return undefined
+    console.log(sets)
+
+    if (!sets || sets.length === 0) return undefined
 
     const setGroups: Set[][] = []
 
