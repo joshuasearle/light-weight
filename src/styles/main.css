@@ -31,3 +31,7 @@ h1 {
 :root {
   -webkit-tap-highlight-color: transparent;
 }
+
+input {
+  color-scheme: dark;
+}
