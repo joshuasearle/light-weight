@@ -1,16 +1,26 @@
-import { Link, Route, Routes } from "react-router-dom"
+import { Link, Route, Routes, useLocation } from "react-router-dom"
 import Toaster from "./components/toaster"
 import Exercises from "./pages/exercises"
 import { MenuIcon, UserIcon } from "@heroicons/react/solid"
 import ExercisePage from "./pages/exercise"
 import * as Popover from "@radix-ui/react-popover"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import Dashboard from "./pages"
 
-const menuOptions = [{ label: "Exercises", path: "/exercises" }]
+const menuOptions = [
+  { label: "Dashboard", path: "/" },
+  { label: "Exercises", path: "/exercises" },
+]
 
 const Menu = () => {
   const [open, setOpen] = useState(false)
+
+  const { pathname } = useLocation()
+
+  const filteredOptions = useMemo(
+    () => menuOptions.filter((option) => option.path !== pathname),
+    [pathname]
+  )
 
   return (
     <div>
@@ -25,15 +35,15 @@ const Menu = () => {
         </Popover.Trigger>
         <Popover.Content asChild>
           <div className="rounded-md shadow-sm shadow-shadow flex flex-col outline-none bg-background">
-            {menuOptions.map(({ label, path }, i) => (
+            {filteredOptions.map(({ label, path }, i) => (
               <div
                 key={path}
                 className={`border-border border-b border-x ${
-                  i === 0 && i === menuOptions.length - 1
+                  i === 0 && i === filteredOptions.length - 1
                     ? "rounded-md border-t"
                     : i === 0
                     ? "rounded-t-md border-t"
-                    : i === menuOptions.length - 1
+                    : i === filteredOptions.length - 1
                     ? "rounded-b-md"
                     : ""
                 }`}
