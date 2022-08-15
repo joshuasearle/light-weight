@@ -118,7 +118,7 @@ function App() {
           <Breadcrumbs />
         </div>
 
-        <div className="border-border sm:shadow-sm shadow-shadow sm:border sm:rounded-md p-4 mt-4">
+        <div className="border-border sm:shadow-sm shadow-shadow sm:border sm:rounded-md p-4 sm:pt-4 pt-0 mt-4">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/exercises" element={<Exercises />} />
