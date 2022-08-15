@@ -1,10 +1,11 @@
-import { Link, Navigate, Route, Routes } from "react-router-dom"
+import { Link, Route, Routes } from "react-router-dom"
 import Toaster from "./components/toaster"
 import Exercises from "./pages/exercises"
 import { MenuIcon, UserIcon } from "@heroicons/react/solid"
 import ExercisePage from "./pages/exercise"
 import * as Popover from "@radix-ui/react-popover"
 import { useState } from "react"
+import Dashboard from "./pages"
 
 const menuOptions = [{ label: "Exercises", path: "/exercises" }]
 
@@ -64,7 +65,7 @@ function App() {
       </div>
       <div className="sm:mt-6 max-w-xl mx-auto border-border sm:shadow-sm shadow-shadow sm:border sm:rounded-md p-4">
         <Routes>
-          <Route path="/" element={<Navigate to="/exercises" />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/exercises" element={<Exercises />} />
           <Route path="/exercises/:id" element={<ExercisePage />} />
         </Routes>
