@@ -510,7 +510,7 @@ const ExercisePage = () => {
             </AlertDialog.Trigger>
             <AlertDialog.Content>
               <div className="fixed h-full w-full top-0 left-0 bg-background opacity-70"></div>
-              <div className="max-w-md w-5/6 absolute left-1/2 -translate-x-1/2 flex justify-center">
+              <div className="max-w-md w-5/6 absolute left-1/2 -translate-x-1/2 flex justify-center bg-background z-10">
                 <div className="space-y-4 p-4 border border-border rounded-md shadow-sm shadow-shadow bg-background">
                   <AlertDialog.Title>
                     <h2 className="font-semibold text-xl">Are you sure?</h2>
