@@ -551,6 +551,13 @@ const ExercisePage = () => {
             })
           }}
           closeForm={() => setPageState(PageState.NORMAL)}
+          initialWeight={
+            Array.isArray(setGroups) &&
+            setGroups.length !== 0 &&
+            setGroups[0].length !== 0
+              ? setGroups[0][0].weight
+              : undefined
+          }
         />
       )}
       {Array.isArray(setGroups) &&
