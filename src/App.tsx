@@ -4,15 +4,17 @@ import Exercises from "./pages/exercises"
 import { MenuIcon, UserIcon } from "@heroicons/react/solid"
 import ExercisePage from "./pages/exercise"
 import * as Popover from "@radix-ui/react-popover"
-import { useMemo, useState } from "react"
+import { memo, useMemo, useState } from "react"
 import Dashboard from "./pages"
+import { isUuid } from "./utils/is-uuid"
+import { capitalizeFirstLetter } from "./utils/caps-first-letter"
 
 const menuOptions = [
   { label: "Dashboard", path: "/" },
   { label: "Exercises", path: "/exercises" },
 ]
 
-const Menu = () => {
+const Menu = memo(() => {
   const [open, setOpen] = useState(false)
 
   const { pathname } = useLocation()
@@ -61,7 +63,45 @@ const Menu = () => {
       </Popover.Root>
     </div>
   )
-}
+})
+
+const Breadcrumbs = memo(() => {
+  const { pathname } = useLocation()
+
+  const breadcrumbs = useMemo(() => {
+    const breadcrumbs = []
+
+    let currentPath = "/"
+
+    breadcrumbs.push({ path: "/", label: "Home" })
+
+    pathname
+      .split("/")
+      .filter((chunk) => !!chunk)
+      .forEach((chunk, i) => {
+        currentPath += `${i === 0 ? "" : "/"}${chunk}`
+        breadcrumbs.push({ path: currentPath, label: chunk })
+      })
+
+    return breadcrumbs
+  }, [pathname])
+
+  return (
+    <div className="w-fit border border-border rounded-md shadow-sm shadow-shadow flex flex-row">
+      {breadcrumbs.map(({ path, label }, i) => (
+        <Link
+          to={path}
+          key={path}
+          className={`text-xs font-semibold px-2.5 py-1 border-border ${
+            i !== 0 && "border-l"
+          }`}
+        >
+          {isUuid(label) ? label.slice(0, 8) : capitalizeFirstLetter(label)}
+        </Link>
+      ))}
+    </div>
+  )
+})
 
 function App() {
   return (
@@ -73,13 +113,20 @@ function App() {
           <UserIcon className="w-6 h-6" />
         </nav>
       </div>
-      <div className="sm:mt-6 max-w-xl mx-auto border-border sm:shadow-sm shadow-shadow sm:border sm:rounded-md p-4">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/exercises" element={<Exercises />} />
-          <Route path="/exercises/:id" element={<ExercisePage />} />
-        </Routes>
+      <div className="mt-4 max-w-xl mx-auto">
+        <div className="ml-4 sm:ml-0">
+          <Breadcrumbs />
+        </div>
+
+        <div className="border-border sm:shadow-sm shadow-shadow sm:border sm:rounded-md p-4 mt-4">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/exercises" element={<Exercises />} />
+            <Route path="/exercises/:id" element={<ExercisePage />} />
+          </Routes>
+        </div>
       </div>
+
       <Toaster />
     </div>
   )
