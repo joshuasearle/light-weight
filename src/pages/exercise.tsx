@@ -304,7 +304,7 @@ const SetCard = memo(
 
     return (
       <div
-        className={`relative sm:text-base text-sm flex flex-row justify-between border-x border-t border-border px-3.5 py-2 ${
+        className={`relative sm:text-base text-sm flex flex-row justify-between border-x border-t border-border sm:px-3.5 sm:py-2 px-3 py-1.5 ${
           first && last
             ? "rounded border-b"
             : first
@@ -318,13 +318,13 @@ const SetCard = memo(
         <span className="w-1/4">{weight}kg</span>
         <span className="w-1/4">{reps} reps</span>
         <span className="w-1/4">{rpe ? `RPE ${rpe}` : ""}</span>
-        <span className="absolute right-4">
+        <span className="absolute right-4 top-1/2 -translate-y-1/2">
           <Popover.Root open={modalOpen} onOpenChange={setModalOpen}>
             <Popover.Trigger asChild>
-              <DotsHorizontalIcon className="h-5 w-5 cursor-pointer" />
+              <DotsHorizontalIcon className="sm:h-5 sm:w-5 h-[18px] w-[18px] cursor-pointer" />
             </Popover.Trigger>
             <Popover.Portal>
-              <Popover.Content className="mt-1">
+              <Popover.Content>
                 <div className="font-semibold bg-background flex flex-col items-start z-10 shadow-sm shadow-shadow rounded-md">
                   <div className="border-border border rounded-t w-full">
                     <button
@@ -332,7 +332,7 @@ const SetCard = memo(
                         selectSetToEdit(id)
                         setModalOpen(false)
                       }}
-                      className="px-3.5 py-2 w-full text-left outline-none focus-visible:ring-2 ring-cyan-900 rounded-md duration-[50ms]"
+                      className="text-sm sm:text-base sm:px-3.5 sm:py-2 px-3 py-1.5 w-full text-left outline-none focus-visible:ring-2 ring-cyan-900 rounded-md duration-[50ms]"
                     >
                       Edit
                     </button>
@@ -343,7 +343,7 @@ const SetCard = memo(
                         await deleteSet(id)
                         setModalOpen(false)
                       }}
-                      className="px-3.5 py-2 outline-none focus-visible:ring-2 ring-cyan-900 duration-[50ms] rounded-md"
+                      className="text-sm sm:text-base sm:px-3.5 sm:py-2 px-3 py-1.5 outline-none focus-visible:ring-2 ring-cyan-900 duration-[50ms] rounded-md"
                     >
                       Delete
                     </button>
@@ -493,7 +493,7 @@ const ExercisePage = () => {
         <div>
           <h2 className="font-semibold text-xl">{exercise.name}</h2>
           {!!exercise.notes && (
-            <div className="mt-3 whitespace-pre border border-border rounded-md shadow-sm shadow-shadow p-3.5 py-2.5 text-sm sm:text-base">
+            <div className="mt-3 whitespace-pre border border-border rounded-md shadow-sm shadow-shadow sm:px-3.5 sm:py-2 px-3 py-1.5 text-sm sm:text-base">
               {exercise.notes}
             </div>
           )}

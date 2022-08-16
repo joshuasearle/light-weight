@@ -51,8 +51,9 @@ const Menu = memo(() => {
                 }`}
               >
                 <Link
+                  onClick={() => setOpen(false)}
                   to={path}
-                  className="rounded-md block px-3.5 py-2 outline-none focus-visible:ring ring-cyan-900 duration-[50ms] "
+                  className="text-sm sm:text-base font-semibold rounded-md block sm:px-3.5 sm:py-2 px-3 py-1.5 outline-none focus-visible:ring ring-cyan-900 duration-[50ms] "
                 >
                   {label}
                 </Link>

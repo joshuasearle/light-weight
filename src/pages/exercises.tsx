@@ -140,13 +140,13 @@ const ExerciseCard = memo(
     reorderModeOn?: boolean
   }) => {
     const className =
-      "bg-background w-full border border-border shadow shadow-shadow rounded-md px-3.5 py-2 flex flex-row justify-between items-center outline-none group"
+      "text-sm sm:text-base bg-background w-full border border-border shadow shadow-shadow rounded-md sm:px-3.5 sm:py-2 px-3 py-1.5 flex flex-row justify-between items-center outline-none group"
 
     if (reorderModeOn) {
       return (
         <div className={className}>
           <span className="font-semibold">{exercise.name}</span>
-          <SelectorIcon className="h-6 w-6" />
+          <SelectorIcon className="sm:h-6 sm:w-6 h-5 w-5" />
         </div>
       )
     }
@@ -154,7 +154,7 @@ const ExerciseCard = memo(
     return (
       <Link to={`/exercises/${exercise.id}`} className={className}>
         <span className="font-semibold">{exercise.name}</span>
-        <ChevronRightIcon className="h-6 w-6 group-focus-visible:ring-2 group-focus-visible:ring-cyan-900 rounded-md" />
+        <ChevronRightIcon className="sm:h-6 sm:w-6 h-5 w-5 group-focus-visible:ring-2 group-focus-visible:ring-cyan-900 rounded-md" />
       </Link>
     )
   }
