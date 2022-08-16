@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import Button from "../components/button"
 import DateInput from "../components/datetime-input"
 import ExerciseForm from "../components/exercise-form"
+import Label from "../components/label"
 import NumberInput from "../components/number-input"
 import { db, Exercise, Set } from "../data/db"
 
@@ -380,7 +381,7 @@ const SetGroup = memo(
 
     return (
       <div>
-        <span className="font-semibold">{dateString}</span>
+        <Label>{dateString}</Label>
         <div className="shadow-sm shadow-shadow rounded-md">
           {setGroup.map((set, i) =>
             set.id === selectedSetId ? (
@@ -489,13 +490,16 @@ const ExercisePage = () => {
         />
       )}
       {pageState !== PageState.EDITING_EXERCISE && (
-        <h2 className="font-semibold text-xl">{exercise.name}</h2>
-      )}
-      {pageState !== PageState.EDITING_EXERCISE && !!exercise.notes && (
-        <div className="whitespace-pre border border-border rounded-md shadow-sm shadow-shadow p-3.5 py-2.5">
-          {exercise.notes}
+        <div>
+          <h2 className="font-semibold text-xl">{exercise.name}</h2>
+          {!!exercise.notes && (
+            <div className="mt-3 whitespace-pre border border-border rounded-md shadow-sm shadow-shadow p-3.5 py-2.5 text-sm sm:text-base">
+              {exercise.notes}
+            </div>
+          )}
         </div>
       )}
+
       {pageState === PageState.NORMAL && (
         <div className="space-x-4">
           <Button onClick={() => setPageState(PageState.CREATING_SET)}>
