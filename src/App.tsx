@@ -36,29 +36,31 @@ const Menu = memo(() => {
           </button>
         </Popover.Trigger>
         <Popover.Content asChild>
-          <div className="rounded-md shadow-sm shadow-shadow flex flex-col outline-none bg-background">
-            {filteredOptions.map(({ label, path }, i) => (
-              <div
-                key={path}
-                className={`border-border border-b border-x ${
-                  i === 0 && i === filteredOptions.length - 1
-                    ? "rounded-md border-t"
-                    : i === 0
-                    ? "rounded-t-md border-t"
-                    : i === filteredOptions.length - 1
-                    ? "rounded-b-md"
-                    : ""
-                }`}
-              >
-                <Link
-                  onClick={() => setOpen(false)}
-                  to={path}
-                  className="text-sm sm:text-base font-semibold rounded-md block sm:px-3.5 sm:py-2 px-3 py-1.5 outline-none focus-visible:ring ring-cyan-900 duration-[50ms] "
+          <div className="pl-4">
+            <div className="rounded-md shadow-sm shadow-shadow flex flex-col outline-none bg-background">
+              {filteredOptions.map(({ label, path }, i) => (
+                <div
+                  key={path}
+                  className={`border-border border-b border-x ${
+                    i === 0 && i === filteredOptions.length - 1
+                      ? "rounded-md border-t"
+                      : i === 0
+                      ? "rounded-t-md border-t"
+                      : i === filteredOptions.length - 1
+                      ? "rounded-b-md"
+                      : ""
+                  }`}
                 >
-                  {label}
-                </Link>
-              </div>
-            ))}
+                  <Link
+                    onClick={() => setOpen(false)}
+                    to={path}
+                    className="text-sm sm:text-base font-semibold rounded-md block sm:px-3.5 sm:py-2 px-3 py-1.5 outline-none focus-visible:ring ring-cyan-900 duration-[50ms] "
+                  >
+                    {label}
+                  </Link>
+                </div>
+              ))}
+            </div>
           </div>
         </Popover.Content>
       </Popover.Root>
