@@ -15,7 +15,7 @@
     "format": "prettier --write .",
     "prepare": "husky install",
     "lint": "eslint src/** --max-warnings 0",
-    "deploy": "yarn build && gh-pages -d dist"
+    "deploy": "yarn build && gh-pages -d dist -r https://github.com/joshuasearle/light-weight.git"
   },
   "dependencies": {
     "@heroicons/react": "^1.0.6",
