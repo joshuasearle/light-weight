@@ -11,6 +11,11 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
+      navigator.storage
+        .persist()
+        .then(value => console.log("persist", value))
+        .catch((err) => console.log("Failed to persist: ", err))
+
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
