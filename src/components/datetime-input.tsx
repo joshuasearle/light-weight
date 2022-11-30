@@ -21,9 +21,7 @@ const DateInput = ({
 }) => {
   const handleDateChange = useCallback(
     (value: string) => {
-      const date = new Date(value)
-      // date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
-      changeHandler(date)
+      changeHandler(new Date(value))
     },
     [changeHandler]
   )
