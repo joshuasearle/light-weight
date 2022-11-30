@@ -3,7 +3,9 @@ import throughEvent from "../utils/through-event"
 import Label from "./label"
 
 const dateToString = (date: Date) => {
-  return date.toISOString().split(".")[0]
+  const newDate = new Date(date)
+  newDate.setMinutes(newDate.getMinutes() - newDate.getTimezoneOffset())
+  return newDate.toISOString().split(".")[0]
 }
 
 const DateInput = ({
@@ -19,7 +21,9 @@ const DateInput = ({
 }) => {
   const handleDateChange = useCallback(
     (value: string) => {
-      changeHandler(new Date(value))
+      const date = new Date(value)
+      // date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
+      changeHandler(date)
     },
     [changeHandler]
   )
