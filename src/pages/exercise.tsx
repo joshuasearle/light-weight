@@ -23,7 +23,7 @@ const useUpdateExercise = (
   exercise: Exercise | undefined,
   noUpdate: () => void
 ) => {
-  const updateExercise = useCallback(
+  return useCallback(
     async ({ name, notes }: { name: string; notes: string }) => {
       if (name === exercise?.name && notes === exercise.notes) {
         toast.success("Exercise updated")
@@ -55,8 +55,6 @@ const useUpdateExercise = (
     },
     [exercise]
   )
-
-  return updateExercise
 }
 
 const useDeleteExercise = (onSuccess: () => void) => {
@@ -267,7 +265,7 @@ const SetForm = memo(
           <div className="flex flex-row space-x-4">
             <Button
               onClick={() => {
-                if (date && weight && reps && rpe) {
+                if (weight !== null && reps && rpe) {
                   onSubmit({ date, weight, reps, rpe })
                 }
               }}
