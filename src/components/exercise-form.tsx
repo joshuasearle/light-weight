@@ -22,11 +22,11 @@ const ExerciseForm = ({
   const nameInput = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
-    if (nameInput.current) nameInput.current.focus()
+    if (nameInput.current && !initialName) nameInput.current.focus()
   }, [])
 
   return (
-    <div className="border border-border shadow shadow-shadow rounded-md p-4 flex flex-col space-y-4">
+    <form className="border border-border shadow shadow-shadow rounded-md p-4 flex flex-col space-y-4">
       <TextInput
         ref={nameInput}
         value={name}
@@ -39,6 +39,7 @@ const ExerciseForm = ({
         changeHandler={setNotes}
         label="Exercise notes"
         htmlFor="exerciseNotes"
+        autoFocus={!!initialName}
       />
       <div className="flex flex-row space-x-4">
         <Button onClick={() => onSubmit({ name, notes })}>
@@ -46,7 +47,7 @@ const ExerciseForm = ({
         </Button>
         <Button onClick={closeForm}>Cancel</Button>
       </div>
-    </div>
+    </form>
   )
 }
 
