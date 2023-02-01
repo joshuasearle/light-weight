@@ -7,16 +7,19 @@ const TextareaInput = ({
   htmlFor,
   value,
   changeHandler,
+  autoFocus = false,
 }: {
   label: string
   htmlFor: string
   value: string
   changeHandler: (_: string) => void
+  autoFocus?: boolean
 }) => {
   return (
     <div className="flex flex-col">
       <Label htmlFor={htmlFor}>{label}</Label>
       <textarea
+        autoFocus={autoFocus}
         id={htmlFor}
         value={value}
         onChange={throughEvent(changeHandler)}
