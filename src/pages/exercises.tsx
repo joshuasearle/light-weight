@@ -12,6 +12,7 @@ import {
   DropResult,
 } from "react-beautiful-dnd"
 import ExerciseForm from "../components/exercise-form"
+import SearchInput from "../components/search-input"
 
 const useExercises = () => {
   return useLiveQuery(() =>
@@ -94,9 +95,11 @@ const AddExerciseForm = memo(
   ({
     closeForm,
     exercises,
+    initialName,
   }: {
     closeForm: () => void
     exercises: Exercise[] | undefined
+    initialName?: string
   }) => {
     const addExercise = useAddExercise()
     const firstArrayRenderDone = useRef(false)
@@ -112,6 +115,7 @@ const AddExerciseForm = memo(
     return (
       <ExerciseForm
         {...{
+          initialName: initialName,
           submitMessage: "Add exercise",
           onSubmit: addExercise,
           closeForm,
@@ -220,8 +224,24 @@ enum PageState {
 const Exercises = () => {
   const exercises = useExercises()
   const [pageState, setPageState] = useState<PageState>(PageState.NORMAL)
+  const [exerciseList, setExerciseList] = useState<Exercise[]>([])
+  const [searchInputValue, setSearchInputValue] = useState("")
 
-  const exercisesExist = !!exercises && exercises.length !== 0
+  useEffect(() => {
+    setExerciseList(exercises ?? [])
+  }, [exercises])
+
+  useEffect(() => {
+    setExerciseList(
+      exercises?.filter((exercise) =>
+        exercise.name.toLowerCase().includes(searchInputValue.toLowerCase())
+      ) ?? []
+    )
+  }, [exercises, searchInputValue])
+
+  if (exercises === undefined) {
+    return <span>Error</span>
+  }
 
   return (
     <div
@@ -232,9 +252,9 @@ const Exercises = () => {
       {pageState !== PageState.ADDING_EXERCISE && (
         <div className="flex flex-row justify-between w-full">
           <Button onClick={() => setPageState(PageState.ADDING_EXERCISE)}>
-            Add exercise
+            Add {searchInputValue || "exercise"}
           </Button>
-          {exercisesExist && (
+          {exerciseList.length > 0 && (
             <Button
               onClick={() =>
                 setPageState(
@@ -249,16 +269,23 @@ const Exercises = () => {
           )}
         </div>
       )}
+      {pageState === PageState.NORMAL && (
+        <SearchInput
+          defaultValue={searchInputValue}
+          inputCallback={(search) => {
+            setSearchInputValue(search.trim())
+          }}
+        />
+      )}
       {pageState === PageState.ADDING_EXERCISE && (
         <AddExerciseForm
+          initialName={searchInputValue}
           exercises={exercises}
           closeForm={() => setPageState(PageState.NORMAL)}
         />
       )}
-      {exercisesExist && pageState !== PageState.REORDERING && (
-        <ExerciseList exercises={exercises} />
-      )}
-      {exercisesExist && pageState === PageState.REORDERING && (
+      <ExerciseList exercises={exerciseList} />
+      {pageState === PageState.REORDERING && (
         <ReorderableExerciseList exercises={exercises} />
       )}
     </div>
