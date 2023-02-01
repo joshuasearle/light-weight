@@ -281,7 +281,10 @@ const Exercises = () => {
         <AddExerciseForm
           initialName={searchInputValue}
           exercises={exercises}
-          closeForm={() => setPageState(PageState.NORMAL)}
+          closeForm={() => {
+            setPageState(PageState.NORMAL)
+            setSearchInputValue("")
+          }}
         />
       )}
       <ExerciseList exercises={exerciseList} />
